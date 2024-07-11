@@ -1,16 +1,46 @@
+# Created by https://www.gitignore.io
+
+### OSX ###
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Icon must end with two \r
+Icon
+
+
+# Thumbnails
+._*
+
+# Files that might appear on external disk
+.Spotlight-V100
+.Trashes
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+
+### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+
 # C extensions
 *.so
+
 # Distribution / packaging
 .Python
 env/
-bin/
 build/
 develop-eggs/
 dist/
+downloads/
 eggs/
+lib/
 lib64/
 parts/
 sdist/
@@ -18,9 +48,17 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
+
 # Unit test / coverage reports
 htmlcov/
 .tox/
@@ -28,54 +66,26 @@ htmlcov/
 .cache
 nosetests.xml
 coverage.xml
+
 # Translations
 *.mo
-# Mr Developer
-.mr.developer.cfg
-.project
-.pydevproject
-# Rope
-.ropeproject
-.idea/
-# Django stuff:
-*.log
 *.pot
+
 # Sphinx documentation
 docs/_build/
-# Back up file
-*~
-#db file
-db.db
-#vim cache
-*swp
-*swo
-#redis dump
-*.rdb
-#*.out
-*.sqlite3
-.python-version
-.DS_Store
-build.txt
-tmp/
-custom_settings.py
-*.zip
 
-data/log/*
-!data/log/.gitkeep
-data/test_case/*
-!data/test_case/.gitkeep
-data/ssl/*
-!data/ssl/.gitkeep
-data/public/upload/*
-!data/public/upload/.gitkeep
-data/public/avatar/*
-!data/public/avatar/default.png
-data/config/*
-!data/config/.gitkeep
+# PyBuilder
+target/
 
-http_locations.conf
-https_locations.conf
 
-venv/
-#test docker-compose
-docker-compose.yml
+### Django ###
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+
+.env
+db.sqlite3
+
+.idea
