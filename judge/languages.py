@@ -230,6 +230,6 @@ languages = [
       "spj": {"compile": _cpp_lang_spj_compile, "config": _cpp_lang_spj_config}},
     {"config": _java_lang_config, "name": "Java", "description": "Temurin 21", "content_type": "text/x-java"},
     {"config": _py3_lang_config, "name": "Python3", "description": "Python 3.12", "content_type": "text/x-python"},
-    {"config": _go_lang_config, "name": "Golang", "description": "Golang 1.22", "content_type": "text/x-go"},
-    {"config": _node_lang_config, "name": "JavaScript", "description": "Node.js 20", "content_type": "text/javascript"},
+    #{"config": _go_lang_config, "name": "Golang", "description": "Golang 1.22", "content_type": "text/x-go"},
+    #{"config": _node_lang_config, "name": "JavaScript", "description": "Node.js 20", "content_type": "text/javascript"},
 ]
