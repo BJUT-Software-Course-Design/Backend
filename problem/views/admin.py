@@ -151,12 +151,21 @@ class TestCaseAPI(CSRFExemptAPIView, TestCaseZipProcessor):
             file = form.cleaned_data["file"]
         else:
             return self.error("Upload failed")
-        zip_file = f"/tmp/{rand_str()}.zip"
-        with open(zip_file, "wb") as f:
-            for chunk in file:
-                f.write(chunk)
-        info, test_case_id = self.process_zip(zip_file, spj=spj)
-        os.remove(zip_file)
+        # zip_file = f"/tmp/{rand_str()}.zip"
+        # with open(zip_file, "wb") as f:
+        #     for chunk in file:
+        #         f.write(chunk)
+        # info, test_case_id = self.process_zip(zip_file, spj=spj)
+        # os.remove(zip_file)
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.zip') as tmp_file:
+            for chunk in file.chunks():
+                tmp_file.write(chunk)
+            # 获取临时文件的路径
+            tmp_file_path = tmp_file.name
+        # 使用临时文件路径处理zip文件
+        info, test_case_id = self.process_zip(tmp_file_path, spj=spj)
+        # 删除临时文件
+        os.remove(tmp_file_path)
         return self.success({"id": test_case_id, "info": info, "spj": spj})
 
 
@@ -535,7 +544,9 @@ class ExportProblemAPI(APIView):
                 ensure_created_by(problem.contest, request.user)
             else:
                 ensure_created_by(problem, request.user)
-        path = f"/tmp/{rand_str()}.zip"
+        # path = f"/tmp/{rand_str()}.zip"
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.zip') as tmp_file:
+            path = tmp_file.name
         with zipfile.ZipFile(path, "w") as zip_file:
             for index, problem in enumerate(problems):
                 self.process_one_problem(zip_file=zip_file, user=request.user, problem=problem, index=index + 1)
@@ -553,15 +564,20 @@ class ImportProblemAPI(CSRFExemptAPIView, TestCaseZipProcessor):
         form = UploadProblemForm(request.POST, request.FILES)
         if form.is_valid():
             file = form.cleaned_data["file"]
-            tmp_file = f"/tmp/{rand_str()}.zip"
-            with open(tmp_file, "wb") as f:
-                for chunk in file:
-                    f.write(chunk)
+            # tmp_file = f"/tmp/{rand_str()}.zip"
+            # with open(tmp_file, "wb") as f:
+            #     for chunk in file:
+            #         f.write(chunk)
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.zip') as tmp_file:
+                for chunk in file.chunks():
+                    tmp_file.write(chunk)
+                # 获取临时文件的路径
+                tmp_file_path = tmp_file.name
         else:
             return self.error("Upload failed")
 
         count = 0
-        with zipfile.ZipFile(tmp_file, "r") as zip_file:
+        with zipfile.ZipFile(tmp_file_path, "r") as zip_file:
             name_list = zip_file.namelist()
             for item in name_list:
                 if "/problem.json" in item:
@@ -589,7 +605,7 @@ class ImportProblemAPI(CSRFExemptAPIView, TestCaseZipProcessor):
                         test_case_score = problem_info["test_case_score"]
 
                         # process test case
-                        _, test_case_id = self.process_zip(tmp_file, spj=spj, dir=f"{i}/testcase/")
+                        _, test_case_id = self.process_zip(tmp_file_path, spj=spj, dir=f"{i}/testcase/")
 
                         problem_obj = Problem.objects.create(_id=problem_info["display_id"],
                                                              title=problem_info["title"],

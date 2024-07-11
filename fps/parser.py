@@ -7,6 +7,7 @@ import hashlib
 import json
 import os
 import xml.etree.ElementTree as ET
+import tempfile
 
 
 class FPSParser(object):
@@ -168,13 +169,16 @@ class FPSHelper(object):
 
 if __name__ == "__main__":
     import pprint
-
+    temp_dir = tempfile.gettempdir()
+    
     parser = FPSParser("fps.xml")
     helper = FPSHelper()
     problems = parser.parse()
     for index, problem in enumerate(problems):
-        path = os.path.join("/tmp/", str(index + 1))
+        #path = os.path.join("/tmp/", str(index + 1))
+        path = os.path.join(temp_dir, str(index + 1))
         os.mkdir(path)
         helper.save_test_case(problem, path)
 
-        pprint.pprint(helper.save_image(problem, "/tmp", "/static/img"))
+        #pprint.pprint(helper.save_image(problem, "/tmp", "/static/img"))
+        pprint.pprint(helper.save_image(problem, temp_dir, "/static/img"))

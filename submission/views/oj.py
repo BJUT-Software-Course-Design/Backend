@@ -18,7 +18,6 @@ from ..serializers import SubmissionSafeModelSerializer, SubmissionListSerialize
 
 class SubmissionAPI(APIView):
     def throttling(self, request):
-        # 使用 open_api 的请求暂不做限制
         auth_method = getattr(request, "auth_method", "")
         if auth_method == "api_key":
             return
@@ -27,12 +26,6 @@ class SubmissionAPI(APIView):
         can_consume, wait = user_bucket.consume()
         if not can_consume:
             return "Please wait %d seconds" % (int(wait))
-
-        # ip_bucket = TokenBucket(key=request.session["ip"],
-        #                         redis_conn=cache, **SysOptions.throttling["ip"])
-        # can_consume, wait = ip_bucket.consume()
-        # if not can_consume:
-        #     return "Captcha is required"
 
     @check_contest_permission(check_type="problems")
     def check_contest_permission(self, request):
