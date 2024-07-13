@@ -105,7 +105,7 @@ class JudgeDispatcher(DispatcherBase):
 
     def _compute_statistic_info(self, resp_data):
         # 用时和内存占用保存为多个测试点中最长的那个
-        #self.submission.statistic_info["time_cost"] = max([x["cpu_time"] for x in resp_data])
+        self.submission.statistic_info["time_cost"] = max([x["cpu_time"] for x in resp_data])
         #self.submission.statistic_info["memory_cost"] = max([x["memory"] for x in resp_data])
 
         # sum up the score in OI mode

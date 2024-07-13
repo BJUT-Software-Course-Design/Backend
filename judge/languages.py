@@ -176,21 +176,21 @@ func main() {
 	fmt.Println(add(1, 2))
 }
 //APPEND END""",
-    "compile": {
-        "src_name": "main.go",
-        "exe_name": "main",
-        "max_cpu_time": 3000,
-        "max_real_time": 5000,
-        "max_memory": 1024 * 1024 * 1024,
-        "compile_command": "/usr/bin/go build -o {exe_path} {src_path}",
-        "env": ["GOCACHE=/tmp", "GOPATH=/tmp", "GOMAXPROCS=1"] + default_env
-    },
-    "run": {
-        "command": "{exe_path}",
-        "seccomp_rule": "golang",
-        "env": ["GOMAXPROCS=1"] + default_env,
-        "memory_limit_check_only": 1
-    }
+    # "compile": {
+    #     "src_name": "main.go",
+    #     "exe_name": "main",
+    #     "max_cpu_time": 3000,
+    #     "max_real_time": 5000,
+    #     "max_memory": 1024 * 1024 * 1024,
+    #     "compile_command": "/usr/bin/go build -o {exe_path} {src_path}",
+    #     "env": ["GOCACHE=/tmp", "GOPATH=/tmp", "GOMAXPROCS=1"] + default_env
+    # },
+    # "run": {
+    #     "command": "{exe_path}",
+    #     "seccomp_rule": "golang",
+    #     "env": ["GOMAXPROCS=1"] + default_env,
+    #     "memory_limit_check_only": 1
+    # }
 }
 
 _node_lang_config = {
