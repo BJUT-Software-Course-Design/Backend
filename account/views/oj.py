@@ -225,7 +225,10 @@ class UserRegisterAPI(APIView):
             return self.error("Username already exists")
         if User.objects.filter(email=data["email"]).exists():
             return self.error("Email already exists")
-        user = User.objects.create(username=data["username"], email=data["email"])
+        
+        print("Received data:", data)
+        
+        user = User.objects.create(username=data["username"], email=data["email"], character=data["character"])
         user.set_password(data["password"])
         user.save()
         UserProfile.objects.create(user=user)

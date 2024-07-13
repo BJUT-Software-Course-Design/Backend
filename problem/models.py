@@ -33,7 +33,13 @@ class ProblemIOMode(Choices):
 def _default_io_mode():
     return {"io_mode": ProblemIOMode.standard, "input": "input.txt", "output": "output.txt"}
 
+class TestCase(models.Model):
+    input = models.TextField()
+    output = models.TextField()
+    score = models.IntegerField(default=0)
 
+    class Meta:
+        db_table = "test_case"
 class Problem(models.Model):
     # display ID
     _id = models.TextField(db_index=True)

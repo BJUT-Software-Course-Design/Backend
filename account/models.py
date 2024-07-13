@@ -29,6 +29,7 @@ class User(AbstractBaseUser):
     create_time = models.DateTimeField(auto_now_add=True, null=True)
     # One of UserType
     admin_type = models.TextField(default=AdminType.REGULAR_USER)
+    character = models.CharField(max_length=10, choices=(('student', 'Student'), ('teacher', 'Teacher')), default='student')
     problem_permission = models.TextField(default=ProblemPermission.NONE)
     reset_password_token = models.TextField(null=True)
     reset_password_token_expire_time = models.DateTimeField(null=True)
@@ -46,6 +47,10 @@ class User(AbstractBaseUser):
     REQUIRED_FIELDS = []
 
     objects = UserManager()
+    def save(self, *args, **kwargs):
+        if self.character == 'teacher':
+            self.admin_type = AdminType.ADMIN  # 假设 AdminType.ADMIN 是表示管理员权限的值
+        super(User, self).save(*args, **kwargs)
 
     def is_admin(self):
         return self.admin_type == AdminType.ADMIN

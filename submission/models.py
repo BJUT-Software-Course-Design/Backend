@@ -21,7 +21,6 @@ class JudgeStatus:
     JUDGING = 7
     PARTIALLY_ACCEPTED = 8
 
-
 class Submission(models.Model):
     id = models.TextField(default=rand_str, primary_key=True, db_index=True)
     contest = models.ForeignKey(Contest, null=True, on_delete=models.CASCADE)

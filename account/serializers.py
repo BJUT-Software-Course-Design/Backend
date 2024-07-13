@@ -21,6 +21,7 @@ class UserRegisterSerializer(serializers.Serializer):
     password = serializers.CharField(min_length=6)
     email = serializers.EmailField(max_length=64)
     captcha = serializers.CharField()
+    character = serializers.ChoiceField(choices=(('student', 'Student'), ('teacher', 'Teacher')), default='student')
 
 
 class UserChangePasswordSerializer(serializers.Serializer):

@@ -1,4 +1,5 @@
 import hashlib
+import os
 import json
 import logging
 from urllib.parse import urljoin
@@ -11,11 +12,12 @@ from account.models import User
 from conf.models import JudgeServer
 from contest.models import ContestRuleType, ACMContestRank, OIContestRank, ContestStatus
 from options.options import SysOptions
-from problem.models import Problem, ProblemRuleType
+from problem.models import Problem, ProblemRuleType,TestCase
 from problem.utils import parse_problem_template
 from submission.models import JudgeStatus, Submission
 from utils.cache import cache
 from utils.constants import CacheKey
+from judge.execute import execute_all
 
 logger = logging.getLogger(__name__)
 
@@ -103,8 +105,8 @@ class JudgeDispatcher(DispatcherBase):
 
     def _compute_statistic_info(self, resp_data):
         # 用时和内存占用保存为多个测试点中最长的那个
-        self.submission.statistic_info["time_cost"] = max([x["cpu_time"] for x in resp_data])
-        self.submission.statistic_info["memory_cost"] = max([x["memory"] for x in resp_data])
+        #self.submission.statistic_info["time_cost"] = max([x["cpu_time"] for x in resp_data])
+        #self.submission.statistic_info["memory_cost"] = max([x["memory"] for x in resp_data])
 
         # sum up the score in OI mode
         if self.problem.rule_type == ProblemRuleType.OI:
@@ -152,13 +154,45 @@ class JudgeDispatcher(DispatcherBase):
             "io_mode": self.problem.io_mode
         }
 
-        with ChooseJudgeServer() as server:
-            if not server:
-                data = {"submission_id": self.submission.id, "problem_id": self.problem.id}
-                cache.lpush(CacheKey.waiting_queue, json.dumps(data))
-                return
-            Submission.objects.filter(id=self.submission.id).update(result=JudgeStatus.JUDGING)
-            resp = self._request(urljoin(server.service_url, "/judge"), data=data)
+        # with ChooseJudgeServer() as server:
+        #     if not server:
+        #         data = {"submission_id": self.submission.id, "problem_id": self.problem.id}
+        #         cache.lpush(CacheKey.waiting_queue, json.dumps(data))
+        #         Submission.objects.filter(id=self.submission.id).update(result=JudgeStatus.JUDGING)
+        #         resp = self._request(urljoin(server.service_url, "/judge"), data=data)
+        #         return 
+
+        test_case_dir = os.path.join("data/test_case", self.problem.test_case_id)
+        
+        input_files = {}
+        output_files = {}
+
+        for filename in os.listdir(test_case_dir):
+            if filename.endswith('.in'):
+                base_name = filename[:-3]
+                input_files[base_name] = os.path.join(test_case_dir, filename)
+            elif filename.endswith('.out'):
+                base_name = filename[:-4]
+                output_files[base_name] = os.path.join(test_case_dir, filename)
+        test_cases = []
+        # 确保每个.in文件都有对应的.out文件
+        for base_name, input_file in input_files.items():
+            output_file = output_files.get(base_name)
+            if output_file:
+                # 读取.in文件内容
+                with open(input_file, 'r') as file:
+                    input_content = file.read()
+                # 读取.out文件内容
+                with open(output_file, 'r') as file:
+                    output_content = file.read()
+                test_case = TestCase(input=input_content, output=output_content, score=0)
+                #print(test_case.input,test_case.output)
+                test_cases.append(test_case)
+            else:
+                print(f"警告: 找不到 {base_name} 的输出文件")
+
+        Submission.objects.filter(id=self.submission.id).update(result=JudgeStatus.JUDGING)
+        resp = execute_all(self.problem, self.submission,test_cases)
 
         if not resp:
             Submission.objects.filter(id=self.submission.id).update(result=JudgeStatus.SYSTEM_ERROR)

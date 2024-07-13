@@ -73,7 +73,9 @@ class SubmissionAPI(APIView):
                                                contest_id=data.get("contest_id"))
         # use this for debug
         # JudgeDispatcher(submission.id, problem.id).judge()
-        judge_task.send(submission.id, problem.id)
+        #print("judge_task.send")
+        judge_task(submission.id, problem.id)
+        #print("judge_task.send success")
         if hide_id:
             return self.success()
         else:
