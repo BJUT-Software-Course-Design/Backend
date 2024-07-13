@@ -1,0 +1,662 @@
+#include <iostream>                              // 表达式求值    3 * 5 / (2.3 + 2.7)
+using namespace std;
+const int N = 100010;
+string str;
+double num[N];
+int ntt,ott;
+char op[N];
+void eval()
+{
+    double a = num[ntt --];
+    double b = num[ntt --];
+    char c = op[ott --];
+    double x = 0;
+    if(c == '+') x = a + b;
+    else if(c == '-') x = b - a;
+    else if(c == '*') x = b * a;
+    else x = b / a;
+    num[++ ntt] = x;
+}
+bool compare(char a,char b)
+{
+    if(a == '*' || a == '/') return true;
+    else if(b != '*' && b != '/') return true;
+    return false;
+}
+int main()
+{
+    cin >> str;
+    for(int i = 0;i < str.size();i ++)
+    {
+        if(isdigit(str[i]))
+        {
+            int j = i;
+            double x = 0;
+            bool hasPoint = false;
+            bool hasMul = false;
+            double P = 0.1;
+            while(i < str.size() && (isdigit(str[j]) || str[j] == '.' || str[j] == '!'))
+            {
+                if(str[j] == '.') 
+                {
+                    hasPoint = true;
+                    j ++;
+                    continue;
+                }
+                if(str[j] == '!')
+                {
+                    hasMul = true;
+                }
+                if(!hasPoint && !hasMul) x = x * 10 + str[j] - '0';
+                else if(!hasMul)
+                {
+                    x = x + (str[j] - '0') * P;
+                    P = P * 0.1;
+                }
+                if(hasMul)
+                {
+                    for(int i = x - 1;i;i --) 
+                        x *= i;
+                }
+                j ++;
+            }
+            num[++ ntt] = x;
+            i = j - 1;
+        }   
+        else if(str[i] == '(') op[++ ott] = str[i];
+        else if(str[i] == ')')
+        {
+            while(op[ott] != '(') eval();
+            ott --;
+        }
+        else
+        {
+            while(ott && op[ott] != '(' && compare(op[ott],str[i])) eval();
+            op[++ ott] = str[i];
+        }
+    }
+    while(ott) eval();
+    cout << num[ntt];
+}
+
+#include <iostream>
+using namespace std;
+const int N = 100010;
+int q[N];
+int n,s,m;
+class Node
+{
+public:
+    int data;
+    Node *next = NULL;
+    Node(int d,Node *ne)
+    {
+        data = d;
+        next = ne;
+    }
+    Node(){next = NULL;}
+};
+class Link
+{
+public:
+    Node *head,*rear;
+    Link()
+    {
+        head = new Node(1,NULL);
+        rear = new Node();
+        head->next = head;
+        rear = head;
+    }
+    void init(int num)
+    {
+        for(int i = 2;i <= num;i ++)
+        {
+            Node *node = new Node(i,head);
+            rear->next= node;
+            rear = rear->next;
+        }
+    }
+};
+int main()
+{
+    cin >> n >> s >> m;
+    int cnt = 0;
+    Link *list = new Link();
+    list->init(n);
+    Node *tmp = new Node(0,list->head);
+    
+    for(int i = 0;i < s - 1;i ++)
+    {
+        tmp = tmp->next;
+    }
+    while(cnt < n)
+    {
+        int t = m;
+        while(t)
+        {
+            t --;
+            if(t) tmp = tmp->next;
+        }
+        Node *pre = tmp->next;
+        tmp->next = pre->next;
+        q[cnt ++] = pre->data;
+        delete pre;
+    }
+    for(int i = 0;i < n;i ++) printf("%d ",q[i]);
+}
+
+#include <iostream>                               //循环队列                   8 2 2
+using namespace std;
+const int N = 100010;
+int n,s,m;
+int q[N],p[N];
+bool st[N];
+int d[N];
+int find(int x)
+{
+    if(x != p[x]) p[x] = find(p[x]);
+    return p[x];
+}
+int main()
+{
+    cin >> n >> s >> m;
+    s --;
+    int j = 0;
+    for(int i = 1;i <= n;i ++) p[i] = i;
+    while(j < n)
+    {
+        int t = m;
+        while(t)
+        {
+            s += d[s + 1];
+            s = s % n;
+            s ++;
+            cout << s << " ";
+            if(!st[s]) t --;
+        }
+        q[j ++] = s;
+        st[s] = true;
+        d[s] ++;
+        if(st[s - 1]) 
+        {
+            int a = find(s),b = find(s - 1);
+            p[a] = b;
+            d[b] += d[a];
+        }
+        if(st[s + 1])
+        {
+            int a = find(s),b = find(s + 1);
+            p[b] = a;
+            d[a] += d[b];
+        }
+    }
+    puts("");
+    for(int i = 0;i < n;i ++) printf("%d ",q[i]);
+}
+
+#include <iostream>                              // dijkstra    
+/*
+5 7
+1 2 10
+1 5 100
+2 3 50
+3 5 10
+4 3 20
+4 5 60
+1 4 30
+*/
+#include <cstring>
+using namespace std;
+const int N = 510;
+int n,m;
+int g[N][N];
+int dist[N];
+bool st[N];
+int dijkstra()
+{
+    for(int i = 0;i < n - 1;i ++)
+    {
+        int t = -1;
+        for(int j = 1;j <= n;j ++)
+            if(!st[j] && (t == -1 || dist[t] > dist[j]))
+                t = j;
+        st[t] = true;
+        if(t == n) return dist[n];
+        for(int j = 1;j <= n;j ++)
+            dist[j] = min(dist[j],dist[t] + g[t][j]);
+    }
+    if(dist[n] == 0x3f3f3f3f) return -1;
+    return dist[n];
+}
+int main()
+{
+    cin >> n >> m;
+    memset(g,0x3f,sizeof g);
+    memset(dist,0x3f,sizeof dist);
+    dist[1] = 0;
+    while(m --)
+    {
+        int a,b,c;
+        scanf("%d%d%d",&a,&b,&c);
+        g[a][b] = min(g[a][b],c);
+    }
+    dijkstra();
+    for(int i = 2;i <= n;i ++) 
+        if(dist[i] != 0x3f3f3f3f) printf("%d ",dist[i]);
+        else printf("INF ");
+}
+
+
+#include <iostream>                                         //prim
+#include <cstring>
+#include <vector>
+/*
+5 7
+1 2 10
+1 5 100
+2 3 50
+3 5 10
+4 3 20
+4 5 60
+1 4 30
+*/
+using namespace std;
+const int N = 2e5 + 10, INF = 0x3f3f3f3f;
+int n, m;
+int dist[N], last[N];
+int h[N], e[N], ne[N], w[N], idx;
+bool st[N];
+struct Edge
+{
+    int a, b, c;
+};
+vector<Edge> edge;
+int prim()
+{
+    int res = 0;
+    for (int i = 0; i < n; i++)
+    {
+        int t = -1;
+        for (int j = 1; j <= n; j++)
+            if (!st[j] && (t == -1 || dist[j] < dist[t]))
+                t = j;
+        if (i && dist[t] == INF)
+            return INF;
+        if (i)
+        {
+            // res += dist[t];
+            edge.push_back({last[t], t, dist[t]});
+        }
+        st[t] = true;
+        for (int j = h[t]; j != -1; j = ne[j])
+        {
+            int x = e[j];
+            if (dist[x] > w[j])
+            {
+                dist[x] = w[j];
+                last[x] = t;
+            }
+        }
+    }
+    return res;
+}
+void add(int a, int b, int c)
+{
+    e[idx] = b, ne[idx] = h[a], w[idx] = c;
+    h[a] = idx++;
+}
+int main()
+{
+    cin >> n >> m;
+    memset(h, -1, sizeof h);
+    memset(dist, 0x3f, sizeof dist);
+    while (m--)
+    {
+        int a, b, c;
+        scanf("%d%d%d", &a, &b, &c);
+        add(a, b, c);
+        add(b, a, c);
+    }
+    int t = prim();
+    puts("");
+    if (t == INF)
+        puts("impossible");
+    else
+    {
+        for (auto p : edge)
+        {
+            printf("%d %d %d\n", p.a, p.b, p.c);
+        }
+    }
+}
+
+#include <iostream>                // dfs and bfs
+/*
+4 5
+1 2
+2 3
+3 4
+1 3
+1 4
+*/
+#include <cstring>
+#include <queue>
+using namespace std;
+const int N = 1e5 +10;
+int n,m;
+int e[N],ne[N],h[N],idx;
+int path[N];
+bool st[N];
+int k;
+int q[N],hh,tt = -1;
+void add(int a,int b)
+{
+    e[idx] = b,ne[idx] = h[a],h[a] = idx ++;
+}
+void dfs(int x)
+{
+    path[k ++] = x;
+    bool flag = false;
+    for(int i = h[x];i != -1;i = ne[i])
+    {
+        int j = e[i];
+        if(st[j]) continue;
+        flag = true;
+        st[j] = true;
+        dfs(j);
+        st[j] = false;
+        k --;
+    }
+    if(!flag)
+    {
+        for(int i = 0;i < k;i ++) printf("%d ",path[i]);
+        puts("");
+    }
+    return;
+}
+void bfs()
+{
+    while(hh <= tt)
+    {
+        int t = q[hh ++];
+        for(int i = h[t];i != -1;i = ne[i])
+        {
+            int j = e[i];
+            if(st[j]) continue;
+            st[j] = true;
+            q[++ tt] = j;
+        }
+    }
+}
+int main()
+{
+    cin >> n >> m;
+    memset(h,-1,sizeof h);
+    while(m --)
+    {
+        int a,b;
+        scanf("%d%d",&a,&b);
+        add(a,b),add(b,a);
+    }
+    st[1] = true;
+    dfs(1);
+    q[++ tt] = 1;
+    bfs();
+    for(int i = 0;i <= tt;i ++) printf("%d ",q[i]);
+}
+
+
+
+#include <iostream>                           // 快排                 
+/* 18
+41 17 34 0 19 24 28 8 12 14 5 45 31 27 11 41 45 42*/
+using namespace std;
+const int N = 100010;
+int n;
+int a[N];
+void quick_sort(int a[],int l,int r)
+{
+    if(l >= r) return;
+    int i = l - 1,j = r + 1,x = a[l + r >> 1];
+    while(i < j)
+    {
+        do i ++; while(a[i] < x);
+        do j --; while(a[j] > x);
+        if(i < j) swap(a[i],a[j]);
+    }
+    quick_sort(a,l,j);quick_sort(a,j + 1,r);
+}
+int main()
+{
+    cin >> n;
+    for(int i = 0;i < n;i ++) scanf("%d",&a[i]);
+    quick_sort(a,0,n - 1);
+    for(int i = 0;i < n;i ++) printf("%d ",a[i]);
+}
+
+
+#include <iostream>                                       //归排
+using namespace std;
+const int N = 100010;
+int n;
+int q[N],tmp[N];
+void merge_sort(int q[],int l,int r)
+{
+    if(l >= r) return;
+    int mid = l + r >> 1;
+    int i = l,j = mid + 1,k = 0;
+    merge_sort(q,l,mid);merge_sort(q,mid + 1,r);
+    while(i <= mid && j <= r)
+    {
+        if(q[i] <= q[j]) tmp[k ++] = q[i ++];
+        else tmp[k ++] = q[j ++];
+    }
+    while(i <= mid) tmp[k ++] = q[i ++];
+    while(j <= r) tmp[k ++] = q[j ++];
+    for(int i = l,j = 0;i <= r;i ++,j ++) q[i] = tmp[j];
+}
+int main()
+{
+    cin >> n;
+    for(int i = 0;i < n;i ++) scanf("%d",&q[i]);
+    merge_sort(q,0,n - 1);
+    for(int i = 0;i < n;i ++) printf("%d ",q[i]);
+}
+
+
+#include <iostream>                                       //基排
+using namespace std;
+const int N = 100010;
+int a[N],output[N];
+int n;
+void countSort(int a[], int n, int exp)
+{
+    int i, buckets[10] = {0};
+
+    for (i = 0; i < n; i++)
+        buckets[(a[i] / exp) % 10]++;
+
+    for (i = 1; i < 10; i++)
+        buckets[i] += buckets[i - 1];
+
+    for (i = n - 1; i >= 0; i--)
+
+    {
+        output[buckets[(a[i] / exp) % 10] - 1] = a[i];
+        buckets[(a[i] / exp) % 10]--;
+    }
+
+    for (i = 0; i < n; i++)
+        a[i] = output[i];
+}
+
+void radixSort(int a[], int n)
+{
+    int exp,m;
+    for(int i = 0;i < n;i ++) m = max(m,a[i]);
+    for (exp = 1; m / exp > 0; exp *= 10)
+        countSort(a, n, exp);
+}
+int main()
+{
+    cin >> n;
+    for(int i = 0;i < n;i ++) scanf("%d",&a[i]);
+    cout << "before sort:";
+    for (int i = 0; i < n; i++)
+        cout << a[i] << " ";
+    cout << endl;
+    radixSort(a, n);
+    cout << "after  sort:";
+    for (int i = 0; i < n; i++)
+        cout << a[i] << " ";
+    cout << endl;
+    return 0;
+}
+
+
+#include <iostream>                                           //堆排
+using namespace std;
+const int N = 100010;
+int n;
+int heap[N];
+void down(int x)
+{
+    int u = x;
+    if(u * 2 <= n && heap[u * 2] < heap[x]) x = u * 2;
+    if(u * 2 + 1 <= n && heap[u * 2 + 1] < heap[x]) x = u * 2 + 1;
+    if(u != x)
+    {
+        swap(heap[x],heap[u]);
+        down(x);
+    }
+    
+}
+int main()
+{
+    cin >> n ;
+    int m = n;
+    for(int i = 1;i <= n;i ++) scanf("%d",&heap[i]);
+    for(int i = n / 2;i;i --) down(i);
+    while(m --)
+    {
+        printf("%d ",heap[1]);
+        heap[1] = heap[n --];
+        down(1);
+    }
+}
+
+
+#include <iostream>                             //Floyd
+/*
+5 8
+1 4 5
+1 3 2
+3 4 3
+4 2 2
+4 5 1
+1 5 8
+2 5 4
+3 2 6
+*/
+using namespace std;
+const int N = 210,INF = 0x3f3f3f3f;
+int n,m;
+int d[N][N];
+void Floyd()
+{
+    for(int k = 1;k <= n;k ++)
+        for(int j = 1;j <= n;j ++)
+            for(int i = 1;i <= n;i ++)
+                d[i][j] = min(d[i][j],d[i][k] + d[k][j]);
+}
+int main()
+{
+    cin >> n >> m;
+    for(int i = 1;i <= n;i ++)
+        for(int j = 1;j <= n;j ++)
+            if(i == j) d[i][j] = 0;
+            else d[i][j] = INF;
+    while(m --)
+    {
+        int a,b,c;
+        scanf("%d%d%d",&a,&b,&c);
+        d[a][b] = min(d[a][b],c);
+    }
+    Floyd();
+    for(int i = 1;i <= n;i ++)
+    {
+        for(int j = 1;j <= n;j ++)
+            if(d[i][j] > INF / 2) printf("INF ");
+            else printf("%-3d ",d[i][j]);
+        puts("");
+    }
+}
+
+
+#include <iostream>
+using namespace std;
+const int N = 100010;
+int n,q,k;
+int a[N];
+int main()
+{
+    int s = 0;
+    for(int i = 0;i < 25;i ++) a[i] = i + 1;
+    for(int k = 1;k <= 25;k ++)
+    {
+        int l = 0,r = 24;
+        int mid = l + r + 1 >> 1;
+        int cnt = 0;
+        printf("查询%d:\n",k);
+        while(l < r)
+        {
+            if(a[mid] > k) r = mid - 1;
+            else l = mid;
+            cout << a[mid] <<" ";
+            mid = l + r + 1 >> 1;
+            cnt ++;
+        }
+        cout << "查询次数:";
+        cout << cnt << endl;
+        s += cnt;
+    }
+    cout << s;
+}
+
+#include <iostream>
+#include <cstring>
+using namespace std;
+const int N = 100003;
+int n;
+int h[N],e[N],ne[N],idx;
+void insert(int x)
+{
+    int k = (x % N + N) % N;
+    e[idx] = x,ne[idx] = h[k],h[k] = idx ++;
+}
+bool find(int x)
+{
+    int k = (x % N + N) % N;
+    for(int i = h[k];i != -1;i = ne[i])
+    {
+        int j = e[i];
+        if(j == x) return true;
+    }
+    return false;
+}
+int main()
+{
+    //cin >> n;
+    memset(h,-1,sizeof h);
+    char op[2];
+    int x;
+    while(scanf("%s %d",op,&x) && *op != '#')
+    {
+        if(*op == 'I') insert(x);
+        else
+        {
+            if(find(x)) puts("Yes");
+            else puts("No");
+        }
+    }
+}
